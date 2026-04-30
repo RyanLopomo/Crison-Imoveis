@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+* {
+  scroll-behavior: smooth;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+a,
+button {
+  cursor: pointer;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: #080808;
+  color: white;
+}
+
+::selection {
+  background: #d6a84f;
+  color: #000;
+}
+
+.admin-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: rgb(0 0 0 / 0.5);
+  padding: 1rem 1.25rem;
+  color: white;
+  outline: none;
+}
+
+.admin-input::placeholder {
+  color: rgb(255 255 255 / 0.35);
+}
+
+.admin-input:focus {
+  border-color: #d6a84f;
+}
+
+.premium-glow {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 20px 80px rgb(214 168 79 / 0.12);
+}

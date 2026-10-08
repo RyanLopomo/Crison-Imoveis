@@ -1,3 +1,4 @@
+import { jsonBody, mutationError, requireAdminMutation } from "@/lib/security";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAllowedImageUrl, propertySchema } from "@/lib/property-validation";
@@ -17,14 +18,15 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const input = await request.json();
+    await requireAdminMutation(request, "properties");
+    const input = await jsonBody(request, 16384);
     const parsed = propertySchema.safeParse(input);
     if (!parsed.success || !isAllowedImageUrl(parsed.data.imageUrl)) {
       return NextResponse.json({ message: "Confira os dados e a imagem do imóvel." }, { status: 400 });
     }
     const property = await prisma.property.create({ data: parsed.data });
     return NextResponse.json(property, { status: 201 });
-  } catch {
-    return NextResponse.json({ message: "Não foi possível cadastrar o imóvel." }, { status: 400 });
+  } catch (error) {
+    return mutationError(error);
   }
 }

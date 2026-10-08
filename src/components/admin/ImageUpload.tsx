@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { UploadCloud } from "lucide-react";
-import { upload } from "@vercel/blob/client";
+
 
 type Props = {
   onUpload: (url: string) => void;
@@ -15,19 +15,18 @@ export function ImageUpload({ onUpload }: Props) {
 
   async function handleUpload(file: File) {
     if (loading) return;
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
-      setError("Use uma imagem JPG, PNG ou WebP de até 5 MB.");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 4 * 1024 * 1024) {
+      setError("Use uma imagem JPG, PNG ou WebP de até 4 MB.");
       return;
     }
     setLoading(true);
     setError("");
     try {
-      const extension = file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : "webp";
-      const blob = await upload(`properties/${crypto.randomUUID()}.${extension}`, file, {
-        access: "public",
-        handleUploadUrl: "/api/admin/upload",
-        clientPayload: JSON.stringify({ size: file.size }),
-      });
+      const form = new FormData();
+      form.append("file", file);
+      const response = await fetch("/api/admin/upload", { method: "POST", body: form });
+      if (!response.ok) throw new Error();
+      const blob = await response.json();
       setPreview(blob.url);
       onUpload(blob.url);
     } catch {

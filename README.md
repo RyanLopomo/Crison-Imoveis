@@ -44,3 +44,11 @@ Configure `RESEND_API_KEY`, `EMAIL_FROM` (remetente de domínio verificado no Re
 Aplique migrations com `npx prisma migrate deploy` antes de publicar. No desenvolvimento, use `npx prisma migrate dev`. Links duram 20 minutos, são de uso único e armazenam apenas SHA-256; as senhas usam bcrypt com custo 12. Limites são persistidos no PostgreSQL e compartilhados entre instâncias da Vercel. Mudança de senha revoga outras sessões; recuperação ou confirmação de e-mail revoga todas.
 
 SMS é opcional e ainda não está ativado. O campo `recoveryPhone` e a interface `RecoveryDelivery` reservam a estrutura para um provider futuro; a ativação exigirá verificação do telefone e configuração do provider. Nenhuma variável de SMS é necessária atualmente.
+
+## Auditoria e testes de segurança
+
+Consulte `SECURITY_AUDIT.md` antes de publicar. A migration `20261007010000_revocable_sessions` cria sessões revogáveis: aplique `npm run db:migrate` no banco de destino antes do deploy. Sessões antigas exigem novo login. O upload aceita JPG, PNG e WebP de até 4 MB, valida o conteúdo com Sharp e reencoda a imagem no servidor.
+
+Execute `npm run build` e depois `npm run test:security`. O teste cria PostgreSQL local temporário com credenciais aleatórias, aplica as migrations nesse banco e testa HTTP e navegador. Nunca usa o Neon nem as chaves reais do `.env`. O SDK do Resend aponta apenas para um receptor HTTP local no teste; chamadas externas são bloqueadas. No Windows, usa Edge; em outros sistemas, instale Chromium com `npx playwright install chromium`. O teste encerra os serviços e remove somente seus arquivos temporários.
+
+A CSP usa nonces por requisição, exigindo renderização dinâmica. As dependências transitivas corrigidas estão fixadas em `overrides`; reavalie esses pins quando atualizar Prisma/tsx. Não use `npm audit fix --force` para contornar os alertas restantes de desenvolvimento: ele propõe downgrades incompatíveis.

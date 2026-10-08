@@ -1,3 +1,4 @@
+import { jsonBody, mutationError, requireAdminMutation } from "@/lib/security";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAllowedImageUrl, propertySchema } from "@/lib/property-validation";
@@ -21,7 +22,8 @@ export async function PATCH(request: Request, { params }: Params) {
   const { id } = await params;
   if (!idSchema.test(id)) return NextResponse.json({ message: "Imóvel não encontrado." }, { status: 404 });
   try {
-    const parsed = propertySchema.safeParse(await request.json());
+    await requireAdminMutation(request, "properties");
+    const parsed = propertySchema.safeParse(await jsonBody(request, 16384));
     if (!parsed.success || !isAllowedImageUrl(parsed.data.imageUrl)) {
       return NextResponse.json({ message: "Confira os dados e a imagem do imóvel." }, { status: 400 });
     }
@@ -29,19 +31,20 @@ export async function PATCH(request: Request, { params }: Params) {
     if (result.count === 0) return NextResponse.json({ message: "Imóvel não encontrado." }, { status: 404 });
     const property = await prisma.property.findUnique({ where: { id } });
     return NextResponse.json(property);
-  } catch {
-    return NextResponse.json({ message: "Não foi possível atualizar o imóvel." }, { status: 400 });
+  } catch (error) {
+    return mutationError(error);
   }
 }
 
-export async function DELETE(_: Request, { params }: Params) {
+export async function DELETE(request: Request, { params }: Params) {
   const { id } = await params;
   if (!idSchema.test(id)) return NextResponse.json({ message: "Imóvel não encontrado." }, { status: 404 });
   try {
+    await requireAdminMutation(request, "properties");
     const result = await prisma.property.deleteMany({ where: { id } });
     if (result.count === 0) return NextResponse.json({ message: "Imóvel não encontrado." }, { status: 404 });
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ message: "Não foi possível excluir o imóvel." }, { status: 500 });
+  } catch (error) {
+    return mutationError(error);
   }
 }

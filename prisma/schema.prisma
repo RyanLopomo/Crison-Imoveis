@@ -54,6 +54,17 @@ model Admin {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   tokens AccountToken[]
+  sessions AdminSession[]
+}
+
+model AdminSession {
+  id String @id
+  adminId String
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  @@index([adminId])
+  @@index([expiresAt])
 }
 
 model AccountToken {

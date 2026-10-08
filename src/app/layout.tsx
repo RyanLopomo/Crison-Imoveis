@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -17,11 +18,12 @@ export const metadata: Metadata = {
   description: "Encontre casas, apartamentos, terrenos e imóveis em Jundiaí e região com a CrisOn Imóveis.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await headers(); // Per-request rendering is required for CSP nonces.
   return (
     <html
       lang="pt-BR"

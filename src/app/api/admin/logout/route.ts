@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import { destroyAdminSession } from "@/lib/auth";
-
+import { assertSameOrigin, mutationError } from "@/lib/security";
 export async function POST(request: Request) {
-  const origin = request.headers.get("origin");
-  if (origin !== new URL(request.url).origin) {
-    return NextResponse.json({ message: "Requisição inválida." }, { status: 403 });
-  }
-  await destroyAdminSession();
-  return NextResponse.json({ ok: true });
+  try {
+    assertSameOrigin(request);
+    await destroyAdminSession();
+    return NextResponse.json({ ok: true });
+  } catch (error) { return mutationError(error); }
 }

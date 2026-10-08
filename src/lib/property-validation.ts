@@ -24,7 +24,7 @@ export const propertySchema = z.object({
 export function isAllowedImageUrl(value: string) {
   try {
     const url = new URL(value);
-    return url.protocol === "https:" && url.hostname.endsWith(".blob.vercel-storage.com");
+    return url.protocol === "https:" && !url.username && !url.password && !url.port && url.hostname.endsWith(".blob.vercel-storage.com");
   } catch {
     return false;
   }

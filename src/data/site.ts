@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "CrisOn Imóveis",
   region: "Jundiaí e região",
-  whatsapp: "5511999999999",
+  whatsapp: "11997460106",
   email: "contato@crisonimoveis.com.br",
 };
 

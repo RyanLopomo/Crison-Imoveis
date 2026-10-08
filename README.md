@@ -34,3 +34,13 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Conta administrativa
+
+Configure `DATABASE_URL` (PostgreSQL/Neon), `DIRECT_URL` (conexão direta para migrations), `AUTH_SECRET` (mínimo 32 caracteres), `ADMIN_EMAIL` e `ADMIN_PASSWORD_HASH` (bcrypt). O primeiro acesso ou pedido de recuperação cria uma única conta inicial no banco. Depois disso, nome, e-mail e senha são gerenciados no painel; as variáveis de bootstrap não sobrescrevem alterações. Sessões anteriores à atualização precisam entrar novamente.
+
+Configure `RESEND_API_KEY`, `EMAIL_FROM` (remetente de domínio verificado no Resend) e `NEXT_PUBLIC_APP_URL` (origem HTTPS pública, sem caminho). Verifique o domínio e seus registros DNS no Resend e crie uma chave com permissão de envio. Não use o remetente de testes para enviar a destinatários arbitrários. A recuperação é processada após a resposta usando `after`, compatível com Vercel; falhas de processamento geram apenas uma mensagem genérica nos logs, sem credenciais ou tokens.
+
+Aplique migrations com `npx prisma migrate deploy` antes de publicar. No desenvolvimento, use `npx prisma migrate dev`. Links duram 20 minutos, são de uso único e armazenam apenas SHA-256; as senhas usam bcrypt com custo 12. Limites são persistidos no PostgreSQL e compartilhados entre instâncias da Vercel. Mudança de senha revoga outras sessões; recuperação ou confirmação de e-mail revoga todas.
+
+SMS é opcional e ainda não está ativado. O campo `recoveryPhone` e a interface `RecoveryDelivery` reservam a estrutura para um provider futuro; a ativação exigirá verificação do telefone e configuração do provider. Nenhuma variável de SMS é necessária atualmente.

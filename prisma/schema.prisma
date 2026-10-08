@@ -42,3 +42,37 @@ model Lead {
 
   @@index([createdAt])
 }
+
+model Admin {
+  id String @id @default(cuid())
+  name String @default("Administrador")
+  email String @unique
+  passwordHash String
+  emailVerified Boolean @default(false)
+  recoveryPhone String?
+  sessionVersion Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tokens AccountToken[]
+}
+
+model AccountToken {
+  id String @id @default(cuid())
+  adminId String
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  purpose String
+  newEmail String?
+  tokenHash String @unique
+  expiresAt DateTime
+  usedAt DateTime?
+  createdAt DateTime @default(now())
+  @@index([adminId, purpose])
+  @@index([expiresAt])
+}
+
+model AuthRateLimit {
+  key String @id
+  count Int @default(1)
+  expiresAt DateTime
+  @@index([expiresAt])
+}

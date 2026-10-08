@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export function AdminLogin() {
@@ -33,5 +34,6 @@ export function AdminLogin() {
     <input required type="password" name="password" autoComplete="current-password" placeholder="Senha" className="admin-input" />
     {error && <p role="alert" className="text-sm text-red-400">{error}</p>}
     <button disabled={loading} className="w-full rounded-xl bg-[#D6A84F] px-5 py-4 font-bold text-black disabled:opacity-60">{loading ? "Entrando..." : "Entrar"}</button>
+    <Link href="/admin/forgot-password" className="block text-center text-sm text-[#D6A84F]">Esqueci minha senha</Link>
   </form>;
 }

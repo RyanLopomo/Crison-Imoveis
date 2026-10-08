@@ -5,7 +5,7 @@ import { Pencil, Plus, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { ImageUpload } from "./ImageUpload";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+
 
 type Property = {
   id: string;
@@ -34,7 +34,7 @@ const initialForm = {
   status: "Disponível",
 };
 
-export function AdminProperties() {
+export function AdminProperties({ mode }: { mode: "create" | "list" }) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -145,38 +145,15 @@ export function AdminProperties() {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-10">
-      {/* HEADER */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-10 flex flex-col justify-between gap-4 border-b border-white/10 pb-8 md:flex-row md:items-end"
-      >
-        <div>
-          <p className="text-sm uppercase tracking-[0.35em] text-[#D6A84F]">
-            CrisOn Admin
-          </p>
-
-          <h1 className="mt-3 font-serif text-4xl md:text-6xl">
-            Gerenciar imóveis
-          </h1>
-        </div>
-
-        <Link
-          href="/"
-          className="rounded-full border border-white/15 px-5 py-3 text-sm text-white/70 transition hover:border-[#D6A84F] hover:text-[#D6A84F]"
-        >
-          Voltar ao site
-        </Link>
-      </motion.div>
-
-      <div className="grid gap-8 lg:grid-cols-[420px_1fr]">
+    <section className="space-y-8">
+      {mode === "list" && !editingId && error && <p role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{error}</p>}
+      <div className="space-y-8">
         {/* FORM */}
-        <motion.form
+        {(mode === "create" || editingId) && <motion.form
           onSubmit={editingId ? handleUpdate : handleCreate}
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="h-fit rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-3xl rounded-2xl border border-white/10 bg-white/[0.02] p-5 sm:p-8"
         >
           {error && <p role="alert" className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{error}</p>}
           <div className="mb-6 flex items-center gap-3">
@@ -214,7 +191,7 @@ export function AdminProperties() {
               className="admin-input"
             />
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-3 sm:grid-cols-2">
               <select
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
@@ -241,7 +218,7 @@ export function AdminProperties() {
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-3 sm:grid-cols-2">
               <input
                 required
                 placeholder="Cidade"
@@ -321,15 +298,15 @@ export function AdminProperties() {
                 : "Cadastrar imóvel"}
             </motion.button>
           </div>
-        </motion.form>
+        </motion.form>}
 
         {/* LISTA */}
-        <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl"
+        {mode === "list" && <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="min-w-0"
         >
-          <div className="mb-6 flex items-center justify-between"><h2 className="font-serif text-3xl">Imóveis cadastrados</h2><button type="button" onClick={async () => { await fetch("/api/admin/logout", { method: "POST" }); router.replace("/admin/login"); router.refresh(); }} className="text-sm text-white/60 hover:text-white">Sair</button></div>
+
 
           <div className="space-y-4">
             {listLoading && <p className="rounded-xl border border-white/10 p-6 text-white/50">Carregando imóveis...</p>}
@@ -339,7 +316,7 @@ export function AdminProperties() {
                 initial={{ opacity: 0, y: 25 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                whileHover={{ scale: 1.02 }}
+
                 className="grid gap-4 rounded-2xl border border-white/10 bg-black/40 p-4 md:grid-cols-[120px_1fr_auto]"
               >
                 <div
@@ -352,7 +329,7 @@ export function AdminProperties() {
                     {property.category}
                   </p>
 
-                  <h3 className="mt-1 text-xl font-semibold">
+                  <h3 className="mt-1 break-words text-xl font-semibold">
                     {property.title}
                   </h3>
 
@@ -369,6 +346,7 @@ export function AdminProperties() {
                   <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={() => handleEdit(property)}
+                    aria-label="Editar imóvel"
                     className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white/70 transition hover:bg-white hover:text-black"
                   >
                     <Pencil size={18} />
@@ -377,6 +355,7 @@ export function AdminProperties() {
                   <motion.button
                     whileTap={{ scale: 0.9 }}
                     onClick={() => handleDelete(property.id)}
+                    aria-label="Excluir imóvel"
                     className="flex h-11 w-11 items-center justify-center rounded-full border border-red-500/30 text-red-400 transition hover:bg-red-500 hover:text-white"
                   >
                     <Trash2 size={18} />
@@ -391,7 +370,7 @@ export function AdminProperties() {
               </p>
             )}
           </div>
-        </motion.div>
+        </motion.div>}
       </div>
     </section>
   );
